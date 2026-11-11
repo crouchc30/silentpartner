@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Silent Partner — the back office, handled</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="vendor/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body class="locked">
+  <div class="lock">
+    <div class="lock-card">
+      <div class="lock-logo">SP</div>
+      <h1 class="wordmark">Silent Partner</h1>
+
+      <form id="newPw" class="hidden">
+        <p class="muted">Pick a new password for <strong id="who">your account</strong>.</p>
+        <label>New password <input type="password" id="pw1" autocomplete="new-password" required minlength="8"></label>
+        <label>Type it again <input type="password" id="pw2" autocomplete="new-password" required minlength="8"></label>
+        <button class="primary wide" type="submit">Save new password</button>
+        <div class="lock-error" id="err"></div>
+        <p class="hint">At least 8 characters. A short phrase you'll remember beats a complicated word you won't.</p>
+      </form>
+
+      <div id="waiting" class="muted">Checking your link&hellip;</div>
+
+      <div id="bad" class="hidden">
+        <div class="callout bad">This reset link has expired or has already been used.</div>
+        <p><a class="guide-link" href="index.html">Go back and ask for a new one &rarr;</a></p>
+      </div>
+
+      <div id="done" class="hidden">
+        <div class="callout good">Your password is changed.</div>
+        <p><a class="guide-link" href="index.html">Open Silent Partner &rarr;</a></p>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Supabase signs the person in when they click the emailed link, which is what makes it safe
+ * to let them set a password here without asking for the old one: holding the link is the
+ * proof. If there's no session, the link is stale -- say so plainly rather than showing a
+ * form that cannot work. */
+(function () {
+  const $ = s => document.querySelector(s);
+  const show = id => { ["waiting","newPw","bad","done"].forEach(x => $("#"+x).classList.toggle("hidden", x !== id)); };
+
+  async function start() {
+    try {
+      // The library reads the token out of the URL fragment on load; give it a moment.
+      let user = await SPAuth.currentUser();
+      if (!user) { await new Promise(r => setTimeout(r, 700)); user = await SPAuth.currentUser(); }
+      if (!user) return show("bad");
+      $("#who").textContent = user.email || "your account";
+      show("newPw");
+    } catch { show("bad"); }
+  }
+
+  $("#newPw").addEventListener("submit", async e => {
+    e.preventDefault();
+    const a = $("#pw1").value, b = $("#pw2").value;
+    $("#err").textContent = "";
+    if (a !== b) { $("#err").textContent = "Those two don't match."; return; }
+    if (a.length < 8) { $("#err").textContent = "At least 8 characters, please."; return; }
+    const btn = $("#newPw button"); btn.disabled = true; btn.textContent = "Saving…";
+    try { await SPAuth.setPassword(a); show("done"); }
+    catch (err) { $("#err").textContent = SPAuth.explain(err); btn.disabled = false; btn.textContent = "Save new password"; }
+  });
+
+  start();
+})();
+</script>
+</body>
+</html>

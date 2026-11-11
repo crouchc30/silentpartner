@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Silent Partner — the back office, handled</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="vendor/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body class="locked">
+  <div id="lock" class="lock">
+    <div class="lock-card">
+      <div class="lock-logo">SP</div>
+      <h1 class="wordmark">Silent Partner</h1>
+      <p class="wordmark-sub">The back office, handled.</p>
+
+      <!-- 1. the link word: a doorbell, so the sign-up page isn't the first thing
+           a stranger who finds the address sees. Not a lock; see auth.js. -->
+      <form id="gateForm" class="hidden">
+        <p class="muted">Enter the word that came with your link.</p>
+        <label>Word <input type="password" id="gateWord" autocomplete="off" required></label>
+        <button class="primary wide" type="submit">Continue</button>
+        <div class="lock-error" id="gateErr"></div>
+        <a class="guide-link" href="guide.html">New to this? Read how to use the site &rarr;</a>
+      </form>
+
+      <!-- 2. sign in -->
+      <form id="signinForm" class="hidden">
+        <p class="muted">Sign in to your account.</p>
+        <label>Email <input type="email" id="siEmail" autocomplete="username" required></label>
+        <label>Password <input type="password" id="siPw" autocomplete="current-password" required></label>
+        <button class="primary wide" type="submit">Sign in</button>
+        <div class="lock-error" id="siErr"></div>
+        <div class="lock-links">
+          <button type="button" class="link" id="toForgot">Forgot your password?</button>
+          <button type="button" class="link" id="toSignup">Create an account</button>
+        </div>
+        <a class="guide-link" href="guide.html">How to use this site &rarr;</a>
+      </form>
+
+      <!-- 3. create an account -->
+      <form id="signupForm" class="hidden">
+        <p class="muted">Create your own account. You can then open these books from any device.</p>
+        <label>Email <input type="email" id="suEmail" autocomplete="username" required></label>
+        <label>Password <input type="password" id="suPw" autocomplete="new-password" required minlength="8"></label>
+        <label>Password again <input type="password" id="suPw2" autocomplete="new-password" required minlength="8"></label>
+        <button class="primary wide" type="submit">Create account</button>
+        <div class="lock-error" id="suErr"></div>
+        <div class="lock-links">
+          <button type="button" class="link" id="toSignin">I already have an account</button>
+        </div>
+        <p class="hint">Use an email you can open. We’ll send a code there to check it’s yours, and that’s where a reset code would go if you ever forget your password.</p>
+      </form>
+
+      <!-- 4. forgot password -->
+      <form id="forgotForm" class="hidden">
+        <p class="muted">We’ll email you a code. Type it in on the next screen and you can pick a new password.</p>
+        <label>Email <input type="email" id="fpEmail" autocomplete="username" required></label>
+        <button class="primary wide" type="submit">Email me a code</button>
+        <div class="lock-error" id="fpErr"></div>
+        <div class="lock-ok hidden" id="fpOk">Sent.</div>
+        <div class="lock-links">
+          <button type="button" class="link" id="backToSignin">Back to sign in</button>
+        </div>
+      </form>
+
+
+      <!-- 5. the code from the email. Used both for confirming a new account and for
+           resetting a password, because to the person typing it the job is the same. -->
+      <form id="codeForm" class="hidden">
+        <p class="muted">We’ve emailed a code to <strong id="codeWhere">your email</strong>.
+          Type it in below.</p>
+        <label>Code from the email
+          <input type="text" id="codeInput" inputmode="numeric" autocomplete="one-time-code"
+                 spellcheck="false" placeholder="123456" required>
+        </label>
+        <button class="primary wide" type="submit">Confirm</button>
+        <div class="lock-error" id="codeErr"></div>
+        <div class="lock-ok hidden" id="codeOk"></div>
+        <p class="hint">It can take a minute to arrive, and it may be in the junk folder.
+          The code stops working after an hour.</p>
+        <div class="lock-links">
+          <button type="button" class="link" id="codeResend">Send me another code</button>
+          <button type="button" class="link" id="codeBack">Back to sign in</button>
+        </div>
+      </form>
+
+      <!-- 6. after a reset code checks out, pick the new password -->
+      <form id="newPwForm" class="hidden">
+        <p class="muted">That’s you. Now pick a new password.</p>
+        <label>New password <input type="password" id="npPw" autocomplete="new-password" required minlength="8"></label>
+        <label>Type it again <input type="password" id="npPw2" autocomplete="new-password" required minlength="8"></label>
+        <button class="primary wide" type="submit">Save new password</button>
+        <div class="lock-error" id="npErr"></div>
+        <p class="hint">At least 8 characters. A short phrase you’ll remember beats a complicated word you won’t.</p>
+      </form>
+
+      <div id="noCrypto" class="hidden callout bad">This browser can't run this site. Open it from its https:// link in a current version of Chrome, Safari, Edge, or Firefox.</div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">SP</span>
+      <div>
+        <div class="brand-name">Silent Partner</div>
+        <div class="brand-sub" id="bizName">Your business</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <button data-tab="home" class="active">Home</button>
+      <button data-tab="afford">Can we afford it?</button>
+      <button data-tab="club">Year-end payout</button>
+      <button data-tab="mgmt">Manager payouts</button>
+      <button data-tab="expenses">Expenses</button>
+      <button data-tab="money">Bills &amp; sales</button>
+      <button data-tab="update">Weekly update</button>
+      <button data-tab="pricing">Pricing</button>
+      <button data-tab="history">History</button>
+      <button data-tab="settings">Settings</button>
+      <a id="helpLink" href="guide.html" title="How to use this site">? How to use this</a>
+      <span id="savedBadge" class="saved-badge hidden"></span>
+      <span id="whoBadge" class="who-badge hidden"></span>
+      <button id="lockBtn" title="Sign out">Sign out</button>
+    </nav>
+  </header>
+
+
+  <main>
+    <!-- HOME -->
+    <section id="tab-home" class="tab active">
+      <div class="hero card">
+        <div class="hero-label">Safe to spend or give right now</div>
+        <div class="hero-number" id="heroSafe">$0</div>
+        <div class="hero-sub" id="heroSub"></div>
+        <div class="hero-actions">
+          <button class="primary" data-goto="afford">Check a specific amount</button>
+          <button data-goto="expenses">Log an expense</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h2>Needs your OK <span class="pill" id="reviewCount">0</span></h2>
+          <p class="muted">Nothing gets trusted until you say so. Fix it or tap "Looks right."</p>
+          <ul class="list" id="reviewList"></ul>
+        </div>
+        <div class="card">
+          <h2>Coming up</h2>
+          <p class="muted">Bills due in the next 45 days.</p>
+          <ul class="list" id="upcomingList"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>How we got that number</h2>
+        <p class="muted">No guesswork. Every dollar comes from your records.</p>
+        <div id="breakdownHome"></div>
+      </div>
+    </section>
+
+    <!-- AFFORD -->
+    <section id="tab-afford" class="tab">
+      <div class="card">
+        <h2>Can we afford it?</h2>
+        <p class="muted">A donation, a big order, a new hire, paying yourself a bonus. Ask it here before you promise anyone.</p>
+        <form id="affordForm" class="row-form">
+          <label>How much?
+            <input type="number" id="affordAmount" min="0" step="1" placeholder="8000" required>
+          </label>
+          <label>What for?
+            <input type="text" id="affordWhat" placeholder="Gift to the owners">
+          </label>
+          <button class="primary" type="submit">Check it</button>
+        </form>
+      </div>
+      <div id="affordResult"></div>
+    </section>
+
+    <!-- YEAR-END -->
+    <section id="tab-club" class="tab">
+      <div class="card">
+        <h2>End-of-year payout: the owners</h2>
+        <p class="muted">Whoever owns the business gets what is left at the end of the year. This works out what that is.
+          Before the check is written, two things come off the top: next year's opening inventory, and the
+          manager payouts. What's left is the owners'.</p>
+        <form id="clubForm" class="form-grid">
+          <label>Set aside to buy next year's inventory ($)
+            <input type="number" id="clubInv" step="100" min="0">
+            <span class="hint">The shop has to be able to open next season without borrowing.</span>
+          </label>
+          <label>Management's share of what's left (%)
+            <input type="number" id="clubPct" step="1" min="0" max="100">
+            <span class="hint">The year-end checks for you and the rest of management.</span>
+          </label>
+          <div class="span2 actions"><button class="primary" type="submit">Save and recalculate</button></div>
+        </form>
+      </div>
+      <div id="clubResult"></div>
+    </section>
+
+    <!-- YEAR-END: MANAGEMENT -->
+    <section id="tab-mgmt" class="tab">
+      <div class="card">
+        <h2>End-of-year payout: managers</h2>
+        <p class="muted">The management pool is set on the <button type="button" class="link" data-goto="club">Year-end payout</button>
+          page. This page splits that pool between the people who get a check.</p>
+        <div id="mgmtPoolBox"></div>
+      </div>
+      <div class="card">
+        <h2>Who gets a check?</h2>
+        <p class="muted">Leave every share blank to split the pool evenly. Otherwise shares are weighted,
+          so 60 and 40 splits it 60/40, and so does 6 and 4.</p>
+        <form id="mgmtForm" class="row-form">
+          <label>Name <input type="text" id="mgmtName" required placeholder="Store manager"></label>
+          <label>Share (optional) <input type="number" id="mgmtShare" step="1" min="0" placeholder="even"></label>
+          <button class="primary" type="submit">Add person</button>
+        </form>
+        <div class="table-wrap"><table id="mgmtTable"></table></div>
+      </div>
+      <div id="mgmtResult"></div>
+    </section>
+
+    <!-- EXPENSES -->
+    <section id="tab-expenses" class="tab">
+      <div class="card">
+        <h2 id="expenseFormTitle">Log an expense or bill</h2>
+        <p class="muted">Copy it off the receipt, invoice, or your handwritten list. <strong>If you can't read something, leave it blank.</strong> A blank gets flagged; a guess hides a mistake.</p>
+        <form id="expenseForm" class="form-grid">
+          <input type="hidden" id="exId">
+          <label>Date <input type="date" id="exDate"></label>
+          <label>Who was paid? <input type="text" id="exVendor" list="vendorList" placeholder="Store or supplier"></label>
+          <label class="span2">What was it? <input type="text" id="exDesc" placeholder="Homecoming tees (200)"></label>
+          <label>Category <select id="exCat"></select></label>
+          <label>Amount ($) <input type="number" id="exAmount" step="0.01" min="0" placeholder="0.00"></label>
+          <label>Paid yet?
+            <select id="exStatus">
+              <option value="paid">Paid</option>
+              <option value="unpaid">Not yet (it's a bill)</option>
+              <option value="">Not sure</option>
+            </select>
+          </label>
+          <label>Due date (if unpaid) <input type="date" id="exDue"></label>
+          <label class="span2">Anything unclear? <input type="text" id="exNote" placeholder="e.g. amount smudged, ask my partner"></label>
+          <label class="span2 check"><input type="checkbox" id="exDeposit"> This is a deposit or partial payment. Another payment is still coming.</label>
+          <div class="span2 deposit-extra hidden" id="depositExtra">
+            <label>Remaining balance ($) <input type="number" id="exBalance" step="0.01" min="0"></label>
+            <label>Balance due on <input type="date" id="exBalanceDue"></label>
+          </div>
+          <label class="span2">Photo of the receipt (optional)
+            <input type="file" id="exPhoto" accept="image/*" capture="environment">
+            <span class="hint">Just for reference while you type. Photos are never saved, for your privacy.</span>
+          </label>
+          <img id="photoPreview" class="photo-preview hidden" alt="Receipt preview">
+          <div class="span2 actions">
+            <button class="primary" type="submit" id="exSubmit">Save expense</button>
+            <button type="button" id="exCancel" class="hidden">Cancel edit</button>
+          </div>
+        </form>
+        <datalist id="vendorList"></datalist>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>All expenses</h2>
+          <div class="filters">
+            <select id="filterStatus">
+              <option value="all">Everything</option>
+              <option value="flag">Needs my OK</option>
+              <option value="unpaid">Unpaid bills</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="ledgerTable"></table></div>
+        <div id="catTotals" class="cat-totals"></div>
+      </div>
+    </section>
+
+    <!-- MONEY: recurring, cash, sales -->
+    <section id="tab-money" class="tab">
+      <div class="grid2">
+        <div class="card">
+          <h2>Money in the bank</h2>
+          <p class="muted">Update this whenever you check your bank balance.</p>
+          <form id="cashForm" class="row-form">
+            <label>Date <input type="date" id="cashDate" required></label>
+            <label>Balance ($) <input type="number" id="cashBal" step="0.01" required></label>
+            <button class="primary" type="submit">Add</button>
+          </form>
+          <ul class="list" id="cashList"></ul>
+        </div>
+        <div class="card">
+          <h2>Weekly sales</h2>
+          <p class="muted">From your register or POS. We count only <span id="cautionPct">75%</span> of your average, to be safe.</p>
+          <form id="salesForm" class="row-form">
+            <label>Week ending <input type="date" id="salesDate" required></label>
+            <label>Net sales ($) <input type="number" id="salesAmt" step="0.01" required></label>
+            <button class="primary" type="submit">Add</button>
+          </form>
+          <label class="file-btn">Import POS export (.csv)<input type="file" id="salesCsv" accept=".csv"></label>
+          <ul class="list" id="salesList"></ul>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Bills that repeat</h2>
+        <p class="muted">Rent, subscriptions, insurance, sales tax, the order you place every January. The safe number can't protect bills it doesn't know about.</p>
+        <form id="recForm" class="form-grid">
+          <label>Name <input type="text" id="recName" required placeholder="Business insurance"></label>
+          <label>Category <select id="recCat"></select></label>
+          <label>Amount ($) <input type="number" id="recAmt" step="0.01" required></label>
+          <label>Next due <input type="date" id="recDue" required></label>
+          <label>How often
+            <select id="recFreq">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Every 3 months</option>
+              <option value="annual">Once a year</option>
+              <option value="once">Just once</option>
+            </select>
+          </label>
+          <label>Notes <input type="text" id="recNotes"></label>
+          <div class="span2 actions"><button class="primary" type="submit">Add bill</button></div>
+        </form>
+        <div class="table-wrap"><table id="recTable"></table></div>
+      </div>
+    </section>
+
+    <!-- WEEKLY UPDATE -->
+    <section id="tab-update" class="tab">
+      <div class="card">
+        <h2>Weekly update</h2>
+        <p class="muted">A short, plain-language text you can send to the owner or your partner, or keep for yourself. <strong>Nothing is sent automatically.</strong> You read it, then copy it.</p>
+        <div class="draft-status">STATUS: DRAFT, waiting for your approval</div>
+        <textarea id="updateText" rows="16"></textarea>
+        <div class="actions">
+          <span class="muted" id="wordCount"></span>
+          <button id="regenUpdate">Rebuild from latest numbers</button>
+          <button class="primary" id="copyUpdate">Copy text</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="tab-pricing" class="tab">
+      <div class="card">
+        <h2>True Cost: are you charging enough?</h2>
+        <p class="muted">Most owners forget to count their own time. This counts it.</p>
+        <form id="priceForm" class="form-grid">
+          <label class="span2">Product <input type="text" id="prName" value="Custom spirit tee"></label>
+          <label>Materials per item ($) <input type="number" id="prMat" step="0.01" value="6.20"></label>
+          <label>Minutes of work per item <input type="number" id="prMin" step="1" value="20"></label>
+          <label>What your time is worth ($/hour) <input type="number" id="prWage" step="0.5" value="18"></label>
+          <label>Overhead per item ($) <input type="number" id="prOver" step="0.01" value="1.50">
+            <span class="hint">Rent, fees, and packaging, spread over each item.</span></label>
+          <label>Your current price ($) <input type="number" id="prPrice" step="0.01" value="14"></label>
+          <label>Profit you want (%) <input type="number" id="prTarget" step="1" value="30"></label>
+        </form>
+        <div id="priceResult"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <!-- HISTORY -->
+    <section id="tab-history" class="tab">
+      <h2>History</h2>
+      <p class="muted">Every sign-in and every change, newest first. Everyone who can open these
+        books can see this page, and nothing here can be edited or deleted — that is the point of it.</p>
+
+      <div class="row gap">
+        <label class="inline">Show
+          <select id="histWho"><option value="">everyone</option></select>
+        </label>
+        <label class="inline">
+          <input type="checkbox" id="histChangesOnly"> changes only (hide sign-ins)
+        </label>
+        <button class="link" id="histRefresh">Refresh</button>
+        <button class="link" id="histCsv">Download as a spreadsheet</button>
+      </div>
+
+      <table class="grid" id="histTable">
+        <thead><tr><th>When</th><th>Who</th><th>What they did</th><th>Detail</th></tr></thead>
+        <tbody id="histRows"></tbody>
+      </table>
+      <p class="muted hidden" id="histEmpty">Nothing yet. As soon as somebody signs in or changes
+        something, it will show up here.</p>
+    </section>
+
+    <section id="tab-settings" class="tab">
+      <div class="card">
+        <h2>Your business</h2>
+        <form id="settingsForm" class="form-grid">
+          <label>Business name <input type="text" id="setName" required></label>
+          <label>Kind of business
+            <select id="setType">
+              <option>Retail shop</option><option>Salon / personal services</option>
+              <option>Maker / handmade goods</option><option>Food &amp; drink</option>
+              <option>Professional services</option><option>Nonprofit-supporting shop</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label class="span2">What do profits usually go toward?
+            <input type="text" id="setGoal" placeholder="e.g. a year-end gift to the owners, paying myself, a new oven">
+          </label>
+          <label>Money always kept aside ($)
+            <input type="number" id="setReserve" step="50" min="0">
+            <span class="hint">Your cushion for surprises. We never count it as spendable.</span>
+          </label>
+          <label>How far ahead to look (days)
+            <input type="number" id="setHorizon" step="1" min="7">
+            <span class="hint">Bills due inside this window are set aside first.</span>
+          </label>
+          <label>Count this % of expected sales
+            <input type="number" id="setCaution" step="5" min="0" max="100">
+            <span class="hint">Lower = more cautious.</span>
+          </label>
+          <label>Ask me to confirm expenses over ($)
+            <input type="number" id="setBig" step="50" min="0">
+          </label>
+          <label class="span2">Categories (comma separated)
+            <input type="text" id="setCats">
+          </label>
+          <div class="span2 actions"><button class="primary" type="submit">Save settings</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Which pages you want</h2>
+        <p class="muted">Turn off anything this business doesn't need and it leaves the menu.
+          Nothing is deleted — switch it back on here and whatever was in it is still there.</p>
+        <div id="tabToggles" class="toggle-grid"></div>
+      </div>
+      <div class="card">
+        <h2>Your account</h2>
+        <p class="muted">You are signed in as <strong id="setWho">—</strong>. Changing your password here
+          changes it for your account only: everyone else keeps theirs, and the books are untouched.</p>
+        <form id="pwForm" class="form-grid">
+          <label>New password <input type="password" id="pwNew" autocomplete="new-password" minlength="8" required></label>
+          <label>Type it again <input type="password" id="pwNew2" autocomplete="new-password" required></label>
+          <div class="span2 actions"><span class="lock-error" id="pwErr"></span><button class="primary" type="submit">Change my password</button></div>
+        </form>
+        <p class="hint">Forgotten it instead? Sign out, then use <em>Forgot your password?</em> on the way back in.</p>
+      </div>
+      <div class="card">
+        <h2>Who can open these books</h2>
+        <p class="muted">Anyone with the link and the word that came with it can make an account,
+          and every account sees these same books. Everything anyone does is listed under
+          <button class="link" data-goto="history">History</button>.</p>
+        <ul id="memberList" class="plain-list"></ul>
+      </div>
+      <div class="card">
+        <h2>Your data</h2>
+        <p class="muted">A backup is a copy of these books in a file, so you have one of your own outside the site. It is a plain file: anyone who gets it can read it, so keep it somewhere you'd keep a bank statement.</p>
+        <div class="actions wrap">
+          <button id="exportJson">Download a backup</button>
+          <label class="file-btn">Restore backup<input type="file" id="importJson" accept=".json"></label>
+          <label class="file-btn">Import expenses (.csv)<input type="file" id="ledgerCsv" accept=".csv"></label>
+          <button id="exportCsv">Download expenses (.csv)</button>
+        </div>
+        <p class="hint">Heads up: the expenses .csv is a plain spreadsheet and is <strong>not</strong> locked. Anyone who gets that file can read it.</p>
+        <div class="actions wrap danger-zone">
+          <button id="startFresh" class="danger">Start fresh with my own business</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <footer>Silent Partner · ENT 1000 prototype · It drafts and flags; you make every decision. It never moves money or sends messages.</footer>
+  <script src="merge.js"></script>
+  <script src="cloud.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+:root {
+  --ink: #1d2433;
+  --muted: #667085;
+  --line: #e4e7ec;
+  --bg: #f6f5f1;
+  --card: #ffffff;
+  --brand: #1f3a5f;
+  --brand-soft: #e8eef6;
+  --good: #1a7f4b;
+  --good-soft: #e6f4ec;
+  --warn: #b45309;
+  --warn-soft: #fdf3e2;
+  --bad: #b42318;
+  --bad-soft: #fdecea;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.45;
+}
+
+.topbar {
+  background: var(--brand);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: #fff; color: var(--brand);
+  display: grid; place-items: center; font-weight: 800;
+}
+.brand-name { font-weight: 700; font-size: 18px; }
+.brand-sub { font-size: 13px; opacity: .8; }
+nav { display: flex; flex-wrap: wrap; gap: 4px; }
+nav button {
+  background: transparent; color: #fff; border: 0; opacity: .8;
+  padding: 8px 12px; border-radius: 8px; font-size: 14px; cursor: pointer;
+}
+nav button:hover { opacity: 1; background: rgba(255,255,255,.1); }
+nav button.active { opacity: 1; background: rgba(255,255,255,.18); font-weight: 600; }
+
+.banner {
+  background: var(--warn-soft); color: var(--warn);
+  padding: 10px 24px; font-size: 14px; text-align: center;
+}
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; }
+.tab { display: none; }
+.tab.active { display: block; }
+.hidden { display: none !important; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 18px;
+}
+.card h2 { margin: 0 0 4px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.muted { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid2 > .card { margin-bottom: 0; }
+.grid2 { margin-bottom: 18px; }
+
+.hero { text-align: center; padding: 32px 22px; background: linear-gradient(180deg, #fff, var(--brand-soft)); }
+.hero-label { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.hero-number { font-size: 64px; font-weight: 800; color: var(--brand); margin: 6px 0; font-variant-numeric: tabular-nums; }
+.hero-sub { color: var(--muted); max-width: 560px; margin: 0 auto 18px; }
+.hero-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+button, .file-btn {
+  font: inherit; font-size: 14px;
+  padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+}
+button:hover, .file-btn:hover { border-color: #c4cad4; }
+button.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+button.primary:hover { filter: brightness(1.1); }
+button.danger { color: var(--bad); border-color: #f1c4bf; }
+button.small { padding: 4px 10px; font-size: 13px; }
+button.link { background: none; border: 0; color: inherit; text-decoration: underline; padding: 0 4px; font-weight: 600; }
+.file-btn input { display: none; }
+.file-btn { display: inline-block; }
+
+label { display: flex; flex-direction: column; font-size: 13px; font-weight: 600; color: #344054; gap: 5px; }
+label.check { flex-direction: row; align-items: center; font-weight: 500; gap: 8px; }
+input, select, textarea {
+  font: inherit; font-size: 15px; font-weight: 400;
+  padding: 9px 11px; border: 1px solid #d0d5dd; border-radius: 8px; background: #fff; color: var(--ink);
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand-soft); border-color: var(--brand); }
+textarea { width: 100%; font-family: inherit; line-height: 1.5; resize: vertical; }
+.hint { font-weight: 400; color: var(--muted); font-size: 12px; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.span2 { grid-column: span 2; }
+.row-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+.row-form label { flex: 1; min-width: 140px; }
+.actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; }
+.actions.wrap { flex-wrap: wrap; justify-content: flex-start; }
+.danger-zone { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 16px; }
+.deposit-extra { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.photo-preview { grid-column: span 2; max-height: 260px; max-width: 100%; border-radius: 8px; border: 1px solid var(--line); justify-self: start; }
+
+.pill { background: var(--warn-soft); color: var(--warn); font-size: 13px; padding: 1px 9px; border-radius: 99px; }
+.pill.zero { background: var(--good-soft); color: var(--good); }
+.list { list-style: none; padding: 0; margin: 0; }
+.list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.list li:first-child { border-top: 0; }
+.list .meta { color: var(--muted); font-size: 13px; }
+.list .amt { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.list .empty { color: var(--muted); justify-content: center; }
+.tag { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--brand-soft); color: var(--brand); white-space: nowrap; }
+.tag.overdue { background: var(--bad-soft); color: var(--bad); }
+.tag.soon { background: var(--warn-soft); color: var(--warn); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.flagged td { background: var(--warn-soft); }
+.flag-note { color: var(--warn); font-size: 12px; margin-top: 3px; }
+.row-actions { white-space: nowrap; display: flex; gap: 4px; }
+
+.breakdown { width: 100%; max-width: 640px; }
+.breakdown td { border: 0; padding: 5px 4px; }
+.breakdown .sub td { color: var(--muted); font-size: 13px; padding-left: 22px; }
+.breakdown .total td { border-top: 2px solid var(--ink); font-weight: 700; font-size: 16px; padding-top: 8px; }
+.plus { color: var(--good); }
+.minus { color: var(--bad); }
+
+.verdict { border-radius: var(--radius); padding: 20px 22px; margin-bottom: 18px; border: 1px solid; }
+.verdict.ok { background: var(--good-soft); border-color: #b7e0c7; }
+.verdict.no { background: var(--bad-soft); border-color: #f5c2bd; }
+.verdict h3 { margin: 0 0 8px; font-size: 22px; }
+.verdict p { margin: 8px 0; }
+.verdict ul { margin: 6px 0; padding-left: 20px; }
+.decide { font-weight: 600; margin-top: 14px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.stat { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.stat .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.stat .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.callout { padding: 12px 14px; border-radius: 10px; margin-top: 8px; font-size: 15px; }
+.callout.bad { background: var(--bad-soft); color: var(--bad); }
+.callout.good { background: var(--good-soft); color: var(--good); }
+.callout.warn { background: var(--warn-soft); color: var(--warn); }
+
+.cat-totals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.cat-totals .tag { font-size: 13px; padding: 4px 10px; }
+
+.draft-status { font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--warn); margin-bottom: 8px; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 99px; font-size: 14px; z-index: 50;
+}
+footer { text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 32px; }
+
+@media (max-width: 760px) {
+  .grid2, .form-grid, .deposit-extra { grid-template-columns: 1fr; }
+  .span2, .photo-preview { grid-column: span 1; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .hero-number { font-size: 48px; }
+  .topbar { padding: 12px; }
+  nav button { padding: 6px 8px; font-size: 13px; }
+}
+
+/* ---------- lock screen ---------- */
+.lock { display: none; }
+body.locked .lock {
+  display: grid; place-items: center; min-height: 100vh; padding: 24px;
+  background: linear-gradient(160deg, var(--brand), #2c5282);
+}
+body.locked > :not(.lock):not(script) { display: none !important; }
+.lock-card {
+  background: #fff; border-radius: 16px; padding: 32px 30px; width: 100%; max-width: 440px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+}
+.lock-card h1 { margin: 10px 0 6px; font-size: 24px; }
+.lock-card form { display: flex; flex-direction: column; gap: 14px; }
+.lock-logo {
+  width: 48px; height: 48px; border-radius: 12px; background: var(--brand); color: #fff;
+  display: grid; place-items: center; font-weight: 800; font-size: 18px;
+}
+.lock-card fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.lock-card legend { font-size: 13px; font-weight: 600; color: #344054; padding: 0 4px; }
+.lock-card .callout { margin: 0; font-size: 13px; }
+button.wide { width: 100%; padding: 12px; font-size: 15px; }
+.lock-error { color: var(--bad); font-size: 14px; min-height: 1em; }
+.small-link { font-size: 13px; font-weight: 500; color: var(--muted); align-self: center; }
+
+/* The saving indicator in the top bar. Quiet when it's working, loud only when it isn't. */
+.sync-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  align-self: center;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  cursor: default;
+}
+.sync-badge.ok { background: rgba(255, 255, 255, 0.16); }
+.sync-badge.working { background: rgba(255, 255, 255, 0.28); }
+.sync-badge.error { background: var(--bad); color: #fff; }
+.sync-badge.blocked { background: var(--warn); color: #fff; }
+.sync-badge.off, .sync-badge.hidden { display: none; }
+
+/* Links out to the walkthrough. One on the lock screen, where somebody who is stuck actually
+   lands, and one in the top bar so it can be reached from any page. */
+#helpLink {
+  font: inherit; font-size: 14px; color: #fff; text-decoration: none;
+  opacity: .85; padding: 8px 12px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.3); white-space: nowrap; align-self: center;
+}
+#helpLink:hover { opacity: 1; background: rgba(255,255,255,.14); }
+.guide-link {
+  display: block; text-align: center; margin-top: 2px;
+  font-size: 14px; font-weight: 600; color: var(--brand); text-decoration: none;
+  border: 1px solid var(--brand); border-radius: 9px; padding: 10px 12px;
+}
+.guide-link:hover { background: var(--brand-soft); }
+
+/* ---------------------------------------------------------------------------
+   Accounts: the sign-in screens, the History tab, and a wordmark that looks
+   like a product rather than a class project.
+   --------------------------------------------------------------------------- */
+
+/* The name, set in the serif the rest of the site uses for money, with the
+   letters opened up. Big enough to read as a brand, small enough not to shout. */
+.wordmark {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 2.1rem;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  margin: 14px 0 2px;
+  line-height: 1.1;
+}
+.wordmark-sub {
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin: 0 0 22px;
+}
+
+.lock-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+.lock-ok {
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(40, 140, 90, 0.12);
+  border: 1px solid rgba(40, 140, 90, 0.35);
+  font-size: 0.9rem;
+}
+
+/* Who is signed in, and whether the last change reached the server. */
+.who-badge {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  padding: 2px 8px;
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.saved-badge {
+  font-size: 0.78rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(40, 140, 90, 0.16);
+  border: 1px solid rgba(40, 140, 90, 0.3);
+}
+.saved-badge.bad {
+  background: rgba(190, 60, 50, 0.16);
+  border-color: rgba(190, 60, 50, 0.4);
+}
+
+.plain-list { list-style: none; padding: 0; margin: 6px 0 0; }
+.plain-list li { padding: 4px 0; border-bottom: 1px solid rgba(128,128,128,0.15); font-size: 0.93rem; }
+.plain-list li:last-child { border-bottom: 0; }
+
+.row.gap { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+/* The base label stacks its children; these sit on one line, like label.check above. */
+label.inline { display: inline-flex; flex-direction: row; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; }
+label.inline select, label.inline input { margin: 0; }
+label.inline input[type="checkbox"] { width: auto; flex: none; }
+.toggle-grid label { flex-direction: row; align-items: center; gap: 7px; font-weight: 500; }
+.toggle-grid input[type="checkbox"] { width: auto; flex: none; margin: 0; }
+
+#histTable td:first-child { white-space: nowrap; opacity: 0.8; }
+#histTable td:nth-child(2) { white-space: nowrap; }
+
+.toggle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px 18px; margin-top: 8px; }
+.toggle-grid label { font-size: 0.93rem; }
+#nav button.hidden { display: none; }
+
+/* ---------------------------------------------------------------------------
+   The front of the house.
+
+   The card is the first thing anybody sees and it was doing the job of a login
+   box on an internal tool. These sites get shown to people who have never heard
+   of it, so it should look like something that is already running a business,
+   not like a class project: a quieter background, the name set in a serif with
+   the letters opened up, a rule under it, and plenty of air.
+   --------------------------------------------------------------------------- */
+body.locked .lock {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,0.10), transparent 60%),
+    linear-gradient(165deg, #1d3557 0%, #1b4068 48%, #16324f 100%);
+}
+
+.lock-card {
+  max-width: 420px;
+  padding: 38px 36px 32px;
+  border-radius: 18px;
+  box-shadow: 0 28px 70px rgba(8, 22, 40, 0.38), 0 2px 6px rgba(8, 22, 40, 0.14);
+  text-align: left;
+}
+
+/* The monogram sits above the name rather than beside it, centred, smaller and
+   calmer than the old rounded square. */
+.lock-card .lock-logo {
+  width: 42px; height: 42px;
+  margin: 0 auto;
+  border-radius: 11px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 14px rgba(29, 53, 87, 0.3);
+}
+
+.lock-card .wordmark {
+  text-align: center;
+  color: #16304c;
+  font-size: 2rem;
+  margin: 16px 0 0;
+}
+.lock-card .wordmark-sub {
+  text-align: center;
+  position: relative;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  opacity: 0.5;
+}
+/* A short rule, centred, instead of a full-width border. */
+.lock-card .wordmark-sub::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 44px; height: 1px;
+  transform: translateX(-50%);
+  background: rgba(22, 48, 76, 0.25);
+}
+
+.lock-card p.muted { font-size: 0.92rem; margin: 0 0 4px; }
+.lock-card label { font-size: 0.86rem; font-weight: 600; color: #344054; }
+.lock-card input {
+  margin-top: 5px;
+  padding: 11px 12px;
+  font-size: 0.97rem;
+}
+.lock-card button.wide {
+  margin-top: 4px;
+  padding: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.lock-card .guide-link {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  font-size: 0.87rem;
+}
+.lock-card .hint { font-size: 0.8rem; line-height: 1.45; }
+
+@media (max-width: 420px) {
+  .lock-card { padding: 30px 22px 26px; }
+  .lock-card .wordmark { font-size: 1.7rem; }
+}
+
+/* On the front screens the walkthrough link is a footnote, not a second thing to press.
+   A bordered box there reads as "this is the button", which it isn't. */
+.lock-card .guide-link {
+  border: 0;
+  padding: 0;
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #5a6b80;
+  text-decoration: none;
+  border-top: 1px solid rgba(22, 48, 76, 0.1);
+  padding-top: 16px;
+}
+.lock-card .guide-link:hover { background: transparent; color: var(--brand); text-decoration: underline; }
+
+/* The error line reserves a row whether or not there is an error; it should not
+   also carry the gap that the form's own row spacing already provides. */
+.lock-card .lock-error { min-height: 0; margin: -4px 0 0; }
+.lock-card .lock-error:empty { display: none; }
+
+/* The menu gained a History tab and the bar gained the name of whoever is signed in, which
+   together push it onto a second line on an ordinary laptop. Rather than fight that, let it
+   wrap and send the account bits to the far right, so the second line reads as a deliberate
+   row of its own instead of two things that fell off the end. */
+#nav { flex: 1 1 auto; align-items: center; }
+#nav #savedBadge { margin-left: auto; }
+#nav #whoBadge:first-of-type { margin-left: auto; }
+#nav #savedBadge ~ #whoBadge { margin-left: 0; }
+#nav #helpLink { margin-right: 4px; }
+
+@media (max-width: 1500px) {
+  nav button { padding: 7px 9px; }
+  #nav #helpLink { font-size: 13px; }
+}
+
+/* The code out of the email. Wide-spaced and monospaced so a row of digits can be checked
+   against the message at a glance, which is what people actually do. */
+#codeInput {
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding: 12px 10px;
+}
+#codeInput::placeholder { letter-spacing: 0.4em; opacity: 0.3; }
